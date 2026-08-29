@@ -4,13 +4,23 @@ Reproducible PySpark workflows for exploring the NOAA Global Historical Climatol
 
 The project builds a station dimension from fixed-width metadata, enriches daily observations, analyses the five core weather elements (`PRCP`, `SNOW`, `SNWD`, `TMAX`, `TMIN`), and creates New Zealand temperature and country-level precipitation outputs.
 
+## Selected report visuals
+
+![Monthly minimum and maximum temperature trends across New Zealand stations](assets/nz-station-temperature-trends.png)
+
+*Monthly TMIN/TMAX trends by station, reproduced from the submitted analysis.*
+
+![Global annual average rainfall in 2024](assets/global-annual-rainfall-2024.png)
+
+*Country-level annual average rainfall map for 2024, reproduced from the submitted analysis.*
+
 ## Project layout
 
 ```text
 src/ghcn_pipeline.py     Command-line Spark workflow
 config/example.env       Paths and output locations to customise
 data/README.md           Input schema and data-access notes
-420assignment_*.pdf      Original submitted report
+assets/                  Selected visuals from the submitted analysis
 ```
 
 ## Setup
@@ -53,4 +63,4 @@ spark-submit src/ghcn_pipeline.py country-precipitation \
 - Distance calculations use a Spark SQL Haversine expression, avoiding Python-UDF serialisation overhead.
 - The project intentionally does not ship the original 13+ GB data archive or cloud credentials.
 
-The original PDF remains in this repository as the report that motivated the implementation.
+The original PDF was used as the source for the selected visuals, but is not included in the repository.
