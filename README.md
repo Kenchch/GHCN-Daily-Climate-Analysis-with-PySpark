@@ -1,6 +1,11 @@
 # GHCN-Daily Climate Analysis with PySpark
 
+[![CI](https://github.com/Kenchch/GHCN-Daily-Climate-Analysis-with-PySpark/actions/workflows/ci.yml/badge.svg)](https://github.com/Kenchch/GHCN-Daily-Climate-Analysis-with-PySpark/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Reproducible PySpark workflows for exploring the NOAA Global Historical Climatology Network Daily (GHCN-Daily) data described in the accompanying assignment report.
+
+The workflow is designed for the **13+ GB GHCN-Daily archive** and turns raw fixed-width station metadata plus daily observations into analysis-ready Parquet/CSV outputs without collecting the full dataset on the driver.
 
 The project builds a station dimension from fixed-width metadata, enriches daily observations, analyses the five core weather elements (`PRCP`, `SNOW`, `SNWD`, `TMAX`, `TMIN`), and creates New Zealand temperature and country-level precipitation outputs.
 
@@ -21,6 +26,7 @@ src/ghcn_pipeline.py     Command-line Spark workflow
 config/example.env       Paths and output locations to customise
 data/README.md           Input schema and data-access notes
 assets/                  Selected visuals from the submitted analysis
+.github/workflows/ci.yml Source compilation check on every push and pull request
 ```
 
 ## Setup
@@ -62,5 +68,6 @@ spark-submit src/ghcn_pipeline.py country-precipitation \
 - The station enrichment uses left joins so station records remain the primary grain.
 - Distance calculations use a Spark SQL Haversine expression, avoiding Python-UDF serialisation overhead.
 - The project intentionally does not ship the original 13+ GB data archive or cloud credentials.
+- The original assignment notebooks are not included because the available local copies are corrupted zero-filled files; the reusable workflow is preserved in `src/ghcn_pipeline.py`.
 
 The original PDF was used as the source for the selected visuals, but is not included in the repository.
