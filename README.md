@@ -26,7 +26,7 @@ src/ghcn_pipeline.py     Command-line Spark workflow
 config/example.env       Paths and output locations to customise
 data/README.md           Input schema and data-access notes
 assets/                  Selected visuals from the submitted analysis
-.github/workflows/ci.yml Source compilation check on every push and pull request
+.github/workflows/ci.yml Source compilation and real-Spark regression tests
 ```
 
 ## Setup
@@ -67,6 +67,19 @@ spark-submit src/ghcn_pipeline.py country-precipitation \
 `daily` accepts a CSV/CSV.GZ glob. Values are stored in GHCN's tenths of a unit; the script converts `TMIN`/`TMAX` to degrees C and `PRCP` to millimetres in derived outputs.
 
 ## Reproducibility notes
+
+CI runs a small synthetic fixture through the actual Spark reader and output
+writers, checking quality-flag exclusion, temperature and precipitation unit
+conversion, NZ filtering, and station-level precipitation aggregation. Run
+`python -m pip install pytest` and `python -m pytest -q` with Java and the project
+dependencies installed to repeat it. This checks transformation behaviour; it
+does not reproduce the historical charts or validate performance at 13+ GB.
+
+The precipitation output is the unweighted mean of each station's **observed**
+yearly total. Incomplete station-years are not adjusted or excluded by a
+coverage threshold, and station locations are not area-weighted. Likewise, the
+temperature output averages available station means. These are descriptive
+station-network summaries, not coverage-adjusted national climate estimates.
 
 - Metadata files are parsed by their published fixed-width positions rather than inferred as CSV.
 - The station enrichment uses left joins so station records remain the primary grain.
