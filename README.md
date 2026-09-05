@@ -26,6 +26,7 @@ src/ghcn_pipeline.py     Command-line Spark workflow
 config/example.env       Paths and output locations to customise
 data/README.md           Input schema and data-access notes
 assets/                  Selected visuals from the submitted analysis
+tests/                   Real-Spark tests on synthetic records, no archive needed
 .github/workflows/ci.yml Source compilation and real-Spark regression tests
 ```
 
@@ -68,9 +69,13 @@ spark-submit src/ghcn_pipeline.py country-precipitation \
 
 ## Reproducibility notes
 
-CI runs a small synthetic fixture through the actual Spark reader and output
+CI runs small synthetic fixtures through the actual Spark reader and output
 writers, checking quality-flag exclusion, temperature and precipitation unit
-conversion, NZ filtering, and station-level precipitation aggregation. Run
+conversion, NZ filtering, and station-level precipitation aggregation. It also
+covers the metadata side: that each fixed-width field is read from its published
+offset and that blank optional columns come back empty rather than shifted, that
+the three enrichment joins keep the station as the primary grain, and that the
+Haversine expression matches a distance derivable by hand. Run
 `python -m pip install pytest` and `python -m pytest -q` with Java and the project
 dependencies installed to repeat it. This checks transformation behaviour; it
 does not reproduce the historical charts or validate performance at 13+ GB.
