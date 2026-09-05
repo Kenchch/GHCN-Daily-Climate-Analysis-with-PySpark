@@ -36,9 +36,13 @@ python -m venv .venv
 . .venv/bin/activate                 # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp config/example.env .env
+# Edit .env to point to your downloaded files, then load it in Bash:
+set -a
+source .env
+set +a
 ```
 
-Set the paths in `.env` (or pass the equivalent command-line options). The source data is not included: the GHCN-Daily archive is large and has its own distribution terms.
+Set the paths in `.env` (or pass the equivalent command-line options). The Python CLI does not load `.env` automatically. The commands below use Bash variable syntax; on PowerShell, pass literal paths or use `$env:GHCN_STATIONS` and the equivalent environment variables. Spark also requires a compatible Java runtime. The source data is not included: the GHCN-Daily archive is large and has its own distribution terms.
 
 ## Run
 
