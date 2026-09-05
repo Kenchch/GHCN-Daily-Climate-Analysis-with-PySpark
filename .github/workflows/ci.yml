@@ -3,18 +3,25 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   source-check:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
+          cache: pip
       - name: Compile Python sources
         run: python -m compileall -q src
       - uses: actions/setup-java@v5
