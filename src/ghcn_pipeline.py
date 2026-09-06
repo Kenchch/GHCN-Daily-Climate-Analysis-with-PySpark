@@ -46,7 +46,8 @@ def read_metadata(spark: SparkSession, stations: str, countries: str, states: st
         spark,
     ).select(
         "station_id", F.col("latitude").cast("double"), F.col("longitude").cast("double"),
-        F.col("elevation_m").cast("double"), "state_code", "station_name", "gsn_flag", "hcn_crn_flag", "wmo_id",
+        F.when(F.col("elevation_m").cast("double") != -999.9,
+               F.col("elevation_m").cast("double")).alias("elevation_m"), "state_code", "station_name", "gsn_flag", "hcn_crn_flag", "wmo_id",
     )
     country_df = fixed_width(countries, [("country_code", 0, 2), ("country_name", 3, 47)], spark)
     state_df = fixed_width(states, [("state_code", 0, 2), ("state_name", 3, 47)], spark)
@@ -81,6 +82,7 @@ def read_daily(spark: SparkSession, path: str) -> DataFrame:
         spark.read.schema(DAILY_SCHEMA).option("header", "false").csv(path)
         .withColumn("date", F.to_date("date_raw", "yyyyMMdd"))
         .drop("date_raw")
+        .filter(F.col("value") != -9999)
         .filter(F.col("quality_flag").isNull() | (F.trim("quality_flag") == ""))
     )
 
@@ -98,10 +100,11 @@ def write_nz_temperature(daily: DataFrame, stations: DataFrame, output: str) -> 
     monthly = (
         nz.filter(F.col("element").isin("TMIN", "TMAX"))
         .withColumn("temperature_c", F.col("value") / F.lit(10.0))
-        .groupBy("station_id", F.date_trunc("month", "date").alias("month"), "element")
+        .groupBy("station_id", F.to_date(F.date_trunc("month", "date")).alias("month"), "element")
         .agg(F.avg("temperature_c").alias("mean_temperature_c"))
     )
     monthly.write.mode("overwrite").parquet(f"{output}/monthly_parquet")
+    monthly = daily.sparkSession.read.parquet(f"{output}/monthly_parquet")
     monthly.groupBy("month", "element").agg(F.avg("mean_temperature_c").alias("national_mean_temperature_c")).orderBy("month").write.mode("overwrite").option("header", True).csv(f"{output}/national_monthly_csv")
 
 

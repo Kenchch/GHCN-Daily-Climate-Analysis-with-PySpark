@@ -3,13 +3,13 @@
 [![CI](https://github.com/Kenchch/GHCN-Daily-Climate-Analysis-with-PySpark/actions/workflows/ci.yml/badge.svg)](https://github.com/Kenchch/GHCN-Daily-Climate-Analysis-with-PySpark/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Reproducible PySpark workflows for exploring the NOAA Global Historical Climatology Network Daily (GHCN-Daily) data described in the accompanying assignment report.
+Reproducible PySpark workflows for exploring the NOAA Global Historical Climatology Network Daily (GHCN-Daily) data described in the assignment report.
 
 The workflow is designed for the **13+ GB GHCN-Daily archive** and turns raw fixed-width station metadata plus daily observations into analysis-ready Parquet/CSV outputs without collecting the full dataset on the driver.
 
 The project builds a station dimension from fixed-width metadata, enriches daily observations, analyses the five core weather elements (`PRCP`, `SNOW`, `SNWD`, `TMAX`, `TMIN`), and creates New Zealand temperature and country-level precipitation outputs.
 
-## Selected report visuals
+## From the original coursework report (not produced here)
 
 ![Monthly minimum and maximum temperature trends across New Zealand stations](assets/nz-station-temperature-trends.png)
 
@@ -22,8 +22,7 @@ reads one year's file.*
 *Country rainfall for 2024, from the submitted analysis.* **Its scale is not the
 quantity this repository computes.** The map runs 0–18 mm, while
 `country-precipitation` sums each station's yearly total before averaging and
-so returns hundreds of millimetres for most countries — Christchurch alone is
-around 528 mm in 2024. The two differ by roughly the number of days in a year,
+so returns hundreds of millimetres for most countries . The two differ by roughly the number of days in a year,
 which is consistent with the map being a per-observation mean, but the code
 that drew it is not in this repository and the difference is not something the
 figure states. Both images are kept as a record of the original submission;
@@ -65,7 +64,7 @@ spark-submit src/ghcn_pipeline.py enrich-stations \
   --states "$GHCN_STATES" --inventory "$GHCN_INVENTORY" \
   --output "$OUTPUT_DIR/enriched_stations"
 
-# Produce New Zealand monthly temperature charts from daily observations
+# Produce New Zealand monthly temperature tables from daily observations
 spark-submit src/ghcn_pipeline.py nz-temperature \
   --daily "$GHCN_DAILY_2024" --stations "$OUTPUT_DIR/enriched_stations" \
   --output "$OUTPUT_DIR/nz_temperature"
@@ -101,6 +100,6 @@ station-network summaries, not coverage-adjusted national climate estimates.
 - The station enrichment uses left joins so station records remain the primary grain.
 - Distance calculations use a Spark SQL Haversine expression, avoiding Python-UDF serialisation overhead.
 - The project intentionally does not ship the original 13+ GB data archive or cloud credentials.
-- The original assignment notebooks are not included because the available local copies are corrupted zero-filled files; the reusable workflow is preserved in `src/ghcn_pipeline.py`.
+- Original notebooks and report are not included; `src/ghcn_pipeline.py` is a rewrite.
 
 The original PDF was used as the source for the selected visuals, but is not included in the repository.

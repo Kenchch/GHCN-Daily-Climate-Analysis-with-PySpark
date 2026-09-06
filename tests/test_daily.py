@@ -17,7 +17,8 @@ def test_quality_flags_units_and_country_aggregation(spark, tmp_path):
     )
 
     daily = read_daily(spark, str(observations))
-    assert daily.count() == 7
+    assert daily.count() == 6
+    assert daily.filter("value = -9999").count() == 0
 
     stations = spark.createDataFrame(
         [
@@ -32,6 +33,8 @@ def test_quality_flags_units_and_country_aggregation(spark, tmp_path):
     write_nz_temperature(daily, stations, temperature)
     monthly = spark.read.parquet(f"{temperature}/monthly_parquet").collect()
     assert len(monthly) == 1
+    from datetime import date
+    assert type(monthly[0].month) is date
     assert monthly[0].mean_temperature_c == 15.0
 
     rainfall = str(tmp_path / "rainfall")
