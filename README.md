@@ -112,3 +112,11 @@ Climatology Network-Daily Database*, [doi:10.1175/JTECH-D-11-00103.1](https://do
 Find nearby stations with `nearest-stations --stations <enriched_parquet>
 --latitude -43.53 --longitude 172.64 --limit 10 --output <new_directory>`, passed
 to the same `spark-submit src/ghcn_pipeline.py` entry point.
+
+## How this was built
+
+I set the problem, the data contracts and the quality rules, ran the benchmarks
+and reviewed every diff; Claude Code and OpenAI Codex drafted code, refactored
+and scaffolded tests. The full note — including the `Co-Authored-By` trailers
+removed from this repository's history on 6 September 2026 — is on my profile:
+[How I use AI tools](https://github.com/Kenchch/Kenchch#how-i-use-ai-tools).
