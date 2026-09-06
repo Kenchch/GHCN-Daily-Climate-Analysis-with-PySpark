@@ -1,6 +1,10 @@
 """Small real-Spark regression checks; no NOAA archive download required."""
 
-from src.ghcn_pipeline import read_daily, write_country_precipitation, write_nz_temperature
+from src.ghcn_pipeline import (
+    read_daily,
+    write_country_precipitation,
+    write_nz_temperature,
+)
 
 
 def test_quality_flags_units_and_country_aggregation(spark, tmp_path):
@@ -9,6 +13,8 @@ def test_quality_flags_units_and_country_aggregation(spark, tmp_path):
         "NZ001,20240101,TMAX,200,,,S,\n"
         "NZ001,20240102,TMAX,100,,,S,\n"
         "NZ001,20240103,TMAX,999,,X,S,\n"
+        "NZ001,20240230,TMAX,250,,,S,\n"
+        "NZ001,20240104,TMAX,-9999,,,S,\n"
         "NZ001,20240101,PRCP,100,,,S,\n"
         "NZ001,20240102,PRCP,200,,,S,\n"
         "NZ002,20240101,PRCP,500,,,S,\n"
@@ -17,7 +23,8 @@ def test_quality_flags_units_and_country_aggregation(spark, tmp_path):
     )
 
     daily = read_daily(spark, str(observations))
-    assert daily.count() == 7
+    assert daily.count() == 6
+    assert daily.filter("value = -9999").count() == 0
 
     stations = spark.createDataFrame(
         [
@@ -32,6 +39,8 @@ def test_quality_flags_units_and_country_aggregation(spark, tmp_path):
     write_nz_temperature(daily, stations, temperature)
     monthly = spark.read.parquet(f"{temperature}/monthly_parquet").collect()
     assert len(monthly) == 1
+    from datetime import date
+    assert type(monthly[0].month) is date
     assert monthly[0].mean_temperature_c == 15.0
 
     rainfall = str(tmp_path / "rainfall")

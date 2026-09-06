@@ -5,3 +5,5 @@ __pycache__/
 output/
 spark-warehouse/
 .ipynb_checkpoints/
+
+data/raw/

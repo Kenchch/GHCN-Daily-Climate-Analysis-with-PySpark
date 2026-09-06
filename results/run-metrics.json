@@ -1,0 +1,42 @@
+{
+  "enrich-stations": {
+    "command": "enrich-stations",
+    "spark_version": "3.5.9",
+    "master": "local[2]",
+    "input_rows": {
+      "stations": 132501,
+      "countries": 219,
+      "states": 74,
+      "inventory": 782552
+    },
+    "output_rows": 132501,
+    "elapsed_seconds": 13.725
+  },
+  "nz-temperature": {
+    "command": "nz-temperature",
+    "spark_version": "3.5.9",
+    "master": "local[2]",
+    "input_rows": 37106497,
+    "acceptance_counts": {
+      "quality_flag": 36384,
+      "accepted": 37070113
+    },
+    "output_rows": {
+      "monthly": 288,
+      "national_monthly": 24
+    },
+    "elapsed_seconds": 124.578
+  },
+  "country-precipitation": {
+    "command": "country-precipitation",
+    "spark_version": "3.5.9",
+    "master": "local[2]",
+    "input_rows": 37106497,
+    "acceptance_counts": {
+      "quality_flag": 36384,
+      "accepted": 37070113
+    },
+    "output_rows": 180,
+    "elapsed_seconds": 140.259
+  }
+}
