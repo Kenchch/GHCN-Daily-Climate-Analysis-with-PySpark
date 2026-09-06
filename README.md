@@ -13,11 +13,22 @@ The project builds a station dimension from fixed-width metadata, enriches daily
 
 ![Monthly minimum and maximum temperature trends across New Zealand stations](assets/nz-station-temperature-trends.png)
 
-*Monthly TMIN/TMAX trends by station, reproduced from the submitted analysis.*
+*Monthly TMIN/TMAX by station, 1940–2025, from the submitted analysis over the
+full archive — not from the single-year `nz-temperature` command below, which
+reads one year's file.*
 
-![Global annual average rainfall in 2024](assets/global-annual-rainfall-2024.png)
+![Country rainfall map from the submitted analysis, on a 0–18 mm scale](assets/global-annual-rainfall-2024.png)
 
-*Country-level annual average rainfall map for 2024, reproduced from the submitted analysis.*
+*Country rainfall for 2024, from the submitted analysis.* **Its scale is not the
+quantity this repository computes.** The map runs 0–18 mm, while
+`country-precipitation` sums each station's yearly total before averaging and
+so returns hundreds of millimetres for most countries — Christchurch alone is
+around 528 mm in 2024. The two differ by roughly the number of days in a year,
+which is consistent with the map being a per-observation mean, but the code
+that drew it is not in this repository and the difference is not something the
+figure states. Both images are kept as a record of the original submission;
+neither was produced by the code here, and neither should be read as its
+output.
 
 ## Project layout
 
