@@ -10,23 +10,18 @@ runs on synthetic records against a local Spark session, so no part of the
 from __future__ import annotations
 
 import math
+from pathlib import Path
 
 import pytest
 
-from src.ghcn_pipeline import CORE_ELEMENTS, enrich_stations, fixed_width, haversine_km
-
-# Field layout published in GHCN-Daily's readme, as (name, 0-indexed start, length).
-STATION_FIELDS = [
-    ("station_id", 0, 11),
-    ("latitude", 12, 8),
-    ("longitude", 21, 9),
-    ("elevation_m", 31, 6),
-    ("state_code", 38, 2),
-    ("station_name", 41, 30),
-    ("gsn_flag", 72, 3),
-    ("hcn_crn_flag", 76, 3),
-    ("wmo_id", 80, 5),
-]
+from src.ghcn_pipeline import (
+    CORE_ELEMENTS,
+    STATION_FIELDS,
+    enrich_stations,
+    fixed_width,
+    haversine_km,
+    read_metadata,
+)
 
 
 def place(fields, values):
@@ -107,7 +102,9 @@ class TestEnrichStations:
             [("NZ", "New Zealand"), ("US", "United States")],
             "country_code string, country_name string",
         )
-        states = spark.createDataFrame([("NY", "New York")], "state_code string, state_name string")
+        states = spark.createDataFrame(
+            [("NY", "New York")], "state_code string, state_name string"
+        )
         inventory = spark.createDataFrame(
             [
                 ("NZM00093781", "TMAX", 1950, 2024),
@@ -127,7 +124,9 @@ class TestEnrichStations:
 
         assert result.count() == stations.count() == 3
         orphan = result.filter("station_id = 'ZZX00000001'").collect()
-        assert len(orphan) == 1, "left joins must keep a station with no country or inventory"
+        assert len(orphan) == 1, (
+            "left joins must keep a station with no country or inventory"
+        )
         assert orphan[0]["country_name"] is None
         assert orphan[0]["station_first_year"] is None
 
@@ -145,14 +144,20 @@ class TestEnrichStations:
         assert rows["NZM00093781"]["state_name"] is None
 
     def test_core_element_count_ignores_non_core_elements(self, tables):
-        chch = enrich_stations(*tables).filter("station_id = 'NZM00093781'").collect()[0]
+        chch = (
+            enrich_stations(*tables).filter("station_id = 'NZM00093781'").collect()[0]
+        )
 
         assert chch["element_count"] == 4, "TMAX, TMIN, PRCP and ACMH were all observed"
-        assert chch["core_element_count"] == 3, "ACMH is not one of the five core elements"
+        assert chch["core_element_count"] == 3, (
+            "ACMH is not one of the five core elements"
+        )
         assert set(chch["observed_elements"]) - set(CORE_ELEMENTS) == {"ACMH"}
 
     def test_inventory_years_span_all_elements_at_a_station(self, tables):
-        chch = enrich_stations(*tables).filter("station_id = 'NZM00093781'").collect()[0]
+        chch = (
+            enrich_stations(*tables).filter("station_id = 'NZM00093781'").collect()[0]
+        )
 
         assert chch["station_first_year"] == 1943, "earliest first_year across elements"
         assert chch["station_last_year"] == 2024, "latest last_year across elements"
@@ -173,13 +178,15 @@ class TestHaversine:
         by hand: 6371.0088 km * (pi / 180) = 111.195 km."""
         expected = 6371.0088 * math.radians(1.0)
 
-        assert self._distance(spark, 0.0, 0.0, 1.0, 0.0) == pytest.approx(expected, rel=1e-9)
+        assert self._distance(spark, 0.0, 0.0, 1.0, 0.0) == pytest.approx(
+            expected, rel=1e-9
+        )
 
     def test_identical_points_are_zero_not_nan(self, spark):
         """Floating-point error inside sqrt/asin is the usual source of a NaN here."""
-        assert self._distance(spark, -43.4890, 172.5320, -43.4890, 172.5320) == pytest.approx(
-            0.0, abs=1e-6
-        )
+        assert self._distance(
+            spark, -43.4890, 172.5320, -43.4890, 172.5320
+        ) == pytest.approx(0.0, abs=1e-6)
 
     def test_distance_is_symmetric(self, spark):
         there = self._distance(spark, -43.4890, 172.5320, -37.0082, 174.7850)
@@ -193,3 +200,19 @@ class TestHaversine:
         km = self._distance(spark, -43.4890, 172.5320, -37.0082, 174.7850)
 
         assert km == pytest.approx(745.0, abs=10.0)
+
+
+def test_real_noaa_metadata(spark, tmp_path):
+    sample = Path(__file__).parent / "fixtures/ghcnd-stations.sample.txt"
+    countries = write_lines(
+        tmp_path, "countries.txt", ["AC Antigua and Barbuda", "AE United Arab Emirates"]
+    )
+    states = write_lines(tmp_path, "states.txt", [])
+    inventory = write_lines(tmp_path, "inventory.txt", [])
+    stations, _, _, _ = read_metadata(spark, str(sample), countries, states, inventory)
+    rows = {row.station_id: row for row in stations.collect()}
+    assert len(rows) == 3
+    assert rows["AE000041196"].station_name == "SHARJAH INTER. AIRP"
+    assert rows["AE000041196"].longitude == 55.517
+    assert rows["AE000041196"].wmo_id == "41196"
+    assert rows["ACW00011604"].elevation_m == 10.1

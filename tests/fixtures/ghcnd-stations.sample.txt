@@ -1,0 +1,3 @@
+ACW00011604  17.1167  -61.7833   10.1    ST JOHNS COOLIDGE FLD                       
+ACW00011647  17.1333  -61.7833   19.2    ST JOHNS                                    
+AE000041196  25.3330   55.5170   34.0    SHARJAH INTER. AIRP            GSN     41196

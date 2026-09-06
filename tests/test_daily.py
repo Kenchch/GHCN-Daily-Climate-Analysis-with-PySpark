@@ -1,6 +1,10 @@
 """Small real-Spark regression checks; no NOAA archive download required."""
 
-from src.ghcn_pipeline import read_daily, write_country_precipitation, write_nz_temperature
+from src.ghcn_pipeline import (
+    read_daily,
+    write_country_precipitation,
+    write_nz_temperature,
+)
 
 
 def test_quality_flags_units_and_country_aggregation(spark, tmp_path):
@@ -9,6 +13,8 @@ def test_quality_flags_units_and_country_aggregation(spark, tmp_path):
         "NZ001,20240101,TMAX,200,,,S,\n"
         "NZ001,20240102,TMAX,100,,,S,\n"
         "NZ001,20240103,TMAX,999,,X,S,\n"
+        "NZ001,20240230,TMAX,250,,,S,\n"
+        "NZ001,20240104,TMAX,-9999,,,S,\n"
         "NZ001,20240101,PRCP,100,,,S,\n"
         "NZ001,20240102,PRCP,200,,,S,\n"
         "NZ002,20240101,PRCP,500,,,S,\n"
