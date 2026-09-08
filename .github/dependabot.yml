@@ -15,3 +15,15 @@ updates:
     schedule:
       interval: monthly
     open-pull-requests-limit: 5
+
+    # Spark 4 is a different runtime, not a newer library: ANSI mode on by
+    # default, the connect/classic split, and enough SQL-surface change that
+    # accepting it means re-running every result this repository publishes.
+    # That is a property of the dependency rather than of the version proposed,
+    # so the ignore is written against the dependency.
+    #
+    # Major only. A 3.5.x release still arrives, which is where a fix would
+    # come from.
+    ignore:
+      - dependency-name: pyspark
+        update-types: ["version-update:semver-major"]
