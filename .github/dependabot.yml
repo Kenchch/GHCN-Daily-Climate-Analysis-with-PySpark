@@ -16,11 +16,23 @@ updates:
       interval: monthly
     open-pull-requests-limit: 5
 
-    # Spark 4 is a different runtime, not a newer library: ANSI mode on by
-    # default, the connect/classic split, and enough SQL-surface change that
-    # accepting it means re-running every result this repository publishes.
-    # That is a property of the dependency rather than of the version proposed,
-    # so the ignore is written against the dependency.
+    # Dependabot's 4.2.0 pull request is GREEN here, and that is the reason to
+    # be careful rather than a reason to merge it.
+    #
+    # Spark 4 turns ANSI mode on by default: casting a malformed string to a
+    # number now raises CAST_INVALID_INPUT instead of producing NULL. The
+    # sibling repository, Million-Song-Dataset-Analysis-with-Spark, has a test
+    # that feeds a bad value and it went red on exactly that. This repository
+    # uses the same idiom -- latitude, longitude, elevation_m, first_year and
+    # last_year are all cast out of a fixed-width text file -- and no test here
+    # feeds a malformed field, so nothing exercises it. The suite passing on
+    # Spark 4 says the tests do not reach the change, not that the change is
+    # harmless.
+    #
+    # And the published figures were computed on 3.5.9 against the real
+    # extract, which CI never re-derives. Accepting Spark 4 means re-running
+    # the analysis and comparing, which is deliberate work rather than a merged
+    # bump.
     #
     # Major only. A 3.5.x release still arrives, which is where a fix would
     # come from.
