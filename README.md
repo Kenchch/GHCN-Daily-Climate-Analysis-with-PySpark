@@ -1,5 +1,21 @@
 # GHCN-Daily Climate Analysis with PySpark
 
+> **Archived, 9 September 2026.** This repository is read-only and no longer
+> maintained. It began as PySpark coursework and was rebuilt to validate the
+> complete NOAA 2024 file and publish reproducible outputs; it is kept because
+> the analysis and its results are still reproducible as committed, not because
+> it is current work.
+>
+> `pyspark` stays pinned at 3.5.9. Spark 4 turns ANSI mode on by default, so a
+> malformed string cast to a number raises instead of yielding `NULL` — the
+> pattern this code uses on latitude, longitude, elevation and the year columns.
+> The test suite passes on Spark 4, but no test here feeds a malformed field, so
+> that green says the tests do not reach the change rather than that the change
+> is harmless. Confirming it either way means re-running the analysis on the
+> real archive, and that is not happening here.
+>
+> The maintained portfolio is on [my profile](https://github.com/Kenchch).
+
 [![CI](https://github.com/Kenchch/GHCN-Daily-Climate-Analysis-with-PySpark/actions/workflows/ci.yml/badge.svg)](https://github.com/Kenchch/GHCN-Daily-Climate-Analysis-with-PySpark/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
